@@ -19,6 +19,17 @@ install_dependence:
 	sudo apt-get install libfontconfig1-dev
 	sudo apt-get install m4
 	sudo apt-get install libpango1.0-dev
+	sudo apt-get install libjasper-dev
+	sudo apt-get install libpq-dev
+	sudo apt-get install libnetcdf-dev
+	sudo apt-get install libfitsio-dev
+	sudo apt-get install libogdi3.2-dev
+	sudo apt-get install libgif-dev
+	sudo apt-get install libjpeg-dev
+	sudo apt-get install libexpat1-dev
+	sudo apt-get install xerces-c
+	sudo apt-get install odbcinst
+	sudo apt-get install unixodbc-dev
 	touch $(VPATH)/$@
 
 # 1.
@@ -186,7 +197,7 @@ libsqlitecpp: libspatialite
 	cd ~/geostar/libraries; \
 	tar xvzf libsqlitecpp.tgz; \
 	cd libsqlitecpp/src; \
-	sed -i 's|^GEOSTAR=.*$|GEOSTAR='"$(dirname $(dirname $(dirname `pwd`)))"'|g' Makefile; \
+	sed -i 's|^GEOSTAR=.*$$|GEOSTAR='"$$(dirname $$(dirname $$(dirname `pwd`)))"'|g' Makefile; \
 	$(MAKE) clean; \
 	$(MAKE); \
 	$(MAKE) install
@@ -203,7 +214,7 @@ libspatialitecpp: simpleFeatures
 	cd ~/geostar/libraries; \
 	tar xvzf libspatialitecpp.tgz; \
 	cd libspatialitecpp/src; \
-	sed -i 's|^GEOSTAR=.*$|GEOSTAR='"$(dirname $(dirname $(dirname `pwd`)))"'|g' Makefile; \
+	sed -i 's|^GEOSTAR=.*$$|GEOSTAR='"$$(dirname $$(dirname $$(dirname `pwd`)))"'|g' Makefile; \
 	$(MAKE); \
 	$(MAKE) install
 	touch $(VPATH)/$@
@@ -213,15 +224,15 @@ ifile_cpplib: libspatialitecpp
 	cd ~/geostar/libraries; \
 	tar xvzf ifile_cpplib.tgz; \
 	cd ifile_cpplib; \
-	sed -i 's|^GEOSTAR_HOME=.*$|GEOSTAR_HOME='"$(dirname $(dirname `pwd`))"'|g' Makefile; \
-	$(MAKE); \
-	$(MAKE) install
+	sed -i 's|^GEOSTAR_HOME=.*$$|GEOSTAR_HOME='"$$(dirname $$(dirname `pwd`))"'|g' Makefile; \
+	$(MAKE) clean; \
+	$(MAKE)
 	touch $(VPATH)/$@
 
 # 21.
 cairo: ifile_cpplib
 	cd ~/geostar/libraries; \
-	tar xvjf cairo-1.14.12.tar.xz; \
+	tar xvzf cairo-1.14.12.tar.gz; \
 	cd cairo-1.14.12; \
 	./configure --prefix=`pwd`; \
 	$(MAKE); \
@@ -231,9 +242,9 @@ cairo: ifile_cpplib
 # 22.
 libsigc++: cairo
 	cd ~/geostar/libraries; \
-	tar xvjf libsigc++-2.10.0.tar.xz; \
+	tar xvzf libsigc++-2.10.0.tar.gz; \
 	cd libsigc++-2.10.0; \
-	sed -e '/^libdocdir =/ s/$(book_name)/libsigc++-2.10.0/' -i docs/Makefile.in; \
+	sed -e '/^libdocdir =/ s/$$(book_name)/libsigc++-2.10.0/' -i docs/Makefile.in; \
 	./configure --prefix=`pwd` --with-boost-libdir=`pwd`/../boost_1_65_0/libs; \
 	$(MAKE); \
 	$(MAKE) install; \
@@ -245,7 +256,7 @@ cairomm: libsigc++
 	cd ~/geostar/libraries; \
 	tar xvzf cairomm-1.12.2.tar.gz; \
 	cd cairomm-1.12.2; \
-	sed -e '/^libdocdir =/ s/$(book_name)/cairomm-1.12.2/' -i docs/Makefile.in; \
+	sed -e '/^libdocdir =/ s/$$(book_name)/cairomm-1.12.2/' -i docs/Makefile.in; \
 	./configure --prefix=`pwd` --with-boost=`pwd`/../boost_1_65_0 PKG_CONFIG_PATH=`pwd`/../libsigc++-2.10.0/lib/pkgconfig:`pwd`/../cairo-1.14.12/lib/pkgconfig; \
 	$(MAKE); \
 	$(MAKE) install; \
@@ -268,9 +279,9 @@ plplot: cairomm
 # 25.
 modify_path: plplot
 	cd ~/geostar/src; \
-	sed -i 's|^GEOSTAR_HOME=.*$|GEOSTAR_HOME='"$(dirname `pwd`)"'|g' Makefile; \
+	sed -i 's|^GEOSTAR_HOME=.*$$|GEOSTAR_HOME='"$$(dirname `pwd`)"'|g' Makefile; \
 	make clean; \
-	export LD_LIBRARY_PATH=../libraries/gdal-2.3.0/lib:../libraries/gaia-gis/installdir/lib:../libraries/libsqlitecpp/lib:../libraries/libspatialitecpp/lib; \
+	export LD_LIBRARY_PATH=../libraries/gdal-2.3.0/lib:../libraries/gaia-gis/installdir/lib:../libraries/libsqlitecpp/lib:../libraries/libspatialitecpp/lib
 	touch $(VPATH)/$@
 
 
@@ -286,6 +297,7 @@ test_ifile:
 	cd ~/geostar/src; \
 	make test_ifile_new; \
 	rm a2.h5; \
+	export LD_LIBRARY_PATH=../libraries/gdal-2.3.0/lib:../libraries/gaia-gis/installdir/lib:../libraries/libsqlitecpp/lib:../libraries/libspatialitecpp/lib; \
 	./test_ifile_new
 	touch $(VPATH)/$@
 
@@ -293,12 +305,14 @@ test_sql:
 	cd ~/geostar/src; \
 	make test_sql_new; \
 	rm a2.h5; \
+	export LD_LIBRARY_PATH=../libraries/gdal-2.3.0/lib:../libraries/gaia-gis/installdir/lib:../libraries/libsqlitecpp/lib:../libraries/libspatialitecpp/lib; \
 	./test_sql_new
 	touch $(VPATH)/$@
 
 testcppvector:
 	cd ~/geostar/src; \
 	make testcppvector_new; \
+	export LD_LIBRARY_PATH=../libraries/gdal-2.3.0/lib:../libraries/gaia-gis/installdir/lib:../libraries/libsqlitecpp/lib:../libraries/libspatialitecpp/lib; \
 	./testcppvector_new
 	touch $(VPATH)/$@
 
@@ -309,7 +323,13 @@ test: test_ifile test_sql testcppvector
 ##########################################################################
 
 # To be honest, I don't know how to nuke it... I guess it's just clean
+
 clean:
+	rm -rf $(repo_source)/make
+	rm $(repo_source)/geostar_libraries.tar.gz
+	rm $(repo_source)/geostar_src.tar.gz
+
+nuke:
 	rm -rf ~/geostar
 	rm -rf $(repo_source)/make
 
